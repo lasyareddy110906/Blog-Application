@@ -29,7 +29,7 @@ export const useAuth = create((set) => ({
         isAuthenticated: false,
         currentUser: null,
         //error: err,
-        error: err.response?.data?.error || "Login failed",
+        error: err.response?.data?.message || err.response?.data?.error || "Login failed",
       });
     }
   },

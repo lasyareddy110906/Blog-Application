@@ -5,11 +5,12 @@ import { config } from "dotenv";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { upload } from "../config/multer.js";
+import { uploadToCloudinary } from "../config/cloudinaryUpload.js";
 export const commonApp = exp.Router();
 config();
 
 //Route for register
-commonApp.post("/users", upload.single("profileImageUrl"), async (req, res) => {
+commonApp.post("/users", upload.single("profileImageUrl"), async (req, res, next) => {
   try {
     let allowedRoles = ["USER", "AUTHOR"];
     //get user from req
@@ -20,6 +21,11 @@ commonApp.post("/users", upload.single("profileImageUrl"), async (req, res) => {
     //check role
     if (!allowedRoles.includes(newUser.role)) {
       return res.status(400).json({ message: "Invalid role" });
+    }
+
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+      newUser.profileImageUrl = result.secure_url;
     }
 
     //hash password and replace plain with hashed one
@@ -33,8 +39,7 @@ commonApp.post("/users", upload.single("profileImageUrl"), async (req, res) => {
     //send res
     res.status(201).json({ message: "User created" });
   } catch (err) {
-    console.log("err is ", err);
-    res.status(500).json({ message: "Error creating user", error: err.message });
+    next(err);
   }
 });
 

@@ -56,7 +56,7 @@ function Register() {
       }
     } catch (err) {
       console.log("err in registration", err);
-      setApiError(err.response?.data?.error || "Registration failed");
+      setApiError(err.response?.data?.message || err.response?.data?.error || "Registration failed");
     } finally {
       setLoading(false);
     }

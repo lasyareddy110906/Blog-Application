@@ -1,10 +1,10 @@
 import exp from "express";
 import { config } from "dotenv";
 import { connect } from "mongoose";
-import { userApp } from "./APIs/UserAPI.js";
-import { authorApp } from "./APIs/AuthorAPI.js";
-import { adminApp } from "./APIs/AdminAPI.js";
-import { commonApp } from "./APIs/CommonAPI.js";
+import { userApp } from "./APIs/userAPI.js";
+import { authorApp } from "./APIs/authorAPI.js";
+import { adminApp } from "./APIs/adminAPI.js";
+import { commonApp } from "./APIs/commonAPI.js";
 import cookieParser from "cookie-parser";
 import cors from 'cors'
 config();
@@ -29,10 +29,15 @@ app.use("/auth", commonApp);
 //connect to db
 const connectDB = async () => {
   try {
-    await connect(process.env.DB_URL);
+    const dbUrl = process.env.DB_URL || "mongodb://127.0.0.1:27017/blog-application";
+    if (!process.env.DB_URL) {
+      console.warn("Warning: DB_URL is not defined. Using local MongoDB fallback.");
+    }
+
+    await connect(dbUrl);
     console.log("DB server connected");
     //assign port
-    const port = process.env.PORT || 5000;
+    const port = process.env.PORT || 4000;
     app.listen(port, () => console.log(`server listening on ${port}..`));
   } catch (err) {
     console.log("err in db connect", err);
